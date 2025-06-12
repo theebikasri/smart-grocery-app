@@ -41,6 +41,15 @@ export default function Home() {
           </Link>
         </div>
 
+        {/* ➕ Button to go to OpenFood search page */}
+        <div className="text-right mb-6">
+          <Link href="/openfood">
+            <button className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow">
+              Search Grocery Items
+            </button>
+          </Link>
+        </div>
+
         <ProductList onAddToCart={handleAddToCart} />
         <Cart cartItems={cartItems} />
       </main>
