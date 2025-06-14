@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import jsPDF from 'jspdf';
 
 export default function ChecklistPage() {
   const [cartItems, setCartItems] = useState([]);
   const [checkedItems, setCheckedItems] = useState([]);
 
-  // 🟣 1st useEffect – Load cart items once on first render
   useEffect(() => {
     const stored = localStorage.getItem('cartItems');
     if (stored) {
@@ -14,7 +14,6 @@ export default function ChecklistPage() {
     }
   }, []);
 
-  // 🟣 2nd useEffect – When cartItems change, reset checkedItems
   useEffect(() => {
     setCheckedItems(new Array(cartItems.length).fill(false));
   }, [cartItems]);
@@ -40,21 +39,35 @@ export default function ChecklistPage() {
     }
   };
 
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text(" Grocery Checklist", 20, 20);
+    doc.setFontSize(14);
+
+    cartItems.forEach((item, index) => {
+      const status = checkedItems[index] ? "[✔]" : "[ ]";
+      doc.text(`${status} ${item.name} – ₹${item.price}`, 20, 30 + index * 10);
+    });
+
+    doc.save("grocery-checklist.pdf");
+  };
+
   const completedCount = checkedItems.filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-300 via-pink-200 to-rose-100 flex justify-center items-start p-6">
       <div className="w-full max-w-md bg-white p-6 rounded-2xl shadow-2xl">
-        <h1 className="text-2xl font-bold text-center text-gray-800 mb-4">📝 Grocery Checklist</h1>
+        <h1 className="text-2xl font-bold text-center text-gray-800 mb-4"> Grocery Checklist</h1>
 
-        <div className="flex justify-between mb-4">
+        <div className="flex justify-between mb-4 flex-wrap gap-2">
           <Link href="/">
             <button className="bg-gray-700 text-white px-4 py-2 rounded-xl">
               ← Back to Home
             </button>
           </Link>
 
-          <div className="space-x-2">
+          <div className="space-x-2 flex flex-wrap gap-2">
             <button
               onClick={handleResetChecklist}
               className="bg-yellow-500 text-white px-3 py-2 rounded-xl"
@@ -66,6 +79,12 @@ export default function ChecklistPage() {
               className="bg-red-500 text-white px-3 py-2 rounded-xl"
             >
               Clear All
+            </button>
+            <button
+              onClick={handleDownloadPDF}
+              className="bg-blue-600 text-white px-3 py-2 rounded-xl"
+            >
+              Download PDF
             </button>
           </div>
         </div>
